@@ -1,0 +1,86 @@
+@startuml
+
+component max7219_driver[
+Max7219 Driver
+====
+Animasyon modulunden
+gelen datalari fiziki
+katman uzerinden gonderir
+----
+SPI veya bit banging
+....
+]
+
+component rtc_driver[
+RTC Driver
+====
+Gercek zamanli saatten
+bilgileri alir.
+]
+
+component rht_driver[
+RHT Driver
+====
+Sicaklik sensorunden
+bilgileri alir.
+]
+
+component comms_protocol[
+Communication Protocol
+====
+Dis dunya ile haberlesmede 
+kullanilacak protokol katmani.
+Paketleme, hata kontrolu ve
+paket acma islemleri bu katmanda yapilir.
+]
+
+component uart_driver[
+Uart Driver
+====
+Dis dunya ile haberlesmek
+icin protokol katmanindan
+gelen verileri fiziki katmana
+cevirir. Ayni sekilde fiziki
+katmandan gelen verileri
+protokol katmanina gonderir.
+Cakisma, frame, buffer hatalari
+burada kontrol edilir.
+]
+
+component animation_mgr[
+Animation Manager
+====
+Data yoneticisinden gelen
+bilgiler ile animasyonlari
+ve zamanlamalari ayarlar,
+max7219_driver ile ekrana
+bilgiyi gonderir
+]
+
+component data_mgr[
+Data Manager
+====
+Sensorden ve saatten veri
+okumalarini koordine edip
+animasyon yoneticisine
+gonderir
+]
+
+component comms_mgr[
+Communication Manager
+====
+Ic moduller ve dis dunya
+ile haberlesmeyi saglar.
+Tum moduller haberlesmeleri
+Haberlesme yoneticisi uzerinden
+saglayacaktir
+]
+
+comms_mgr <----[norank]-> data_mgr
+comms_mgr <----[norank]-> animation_mgr
+data_mgr <--> rht_driver
+data_mgr <--> rtc_driver
+animation_mgr --> max7219_driver
+comms_mgr <--> comms_protocol
+comms_protocol <--> uart_driver
+@enduml
