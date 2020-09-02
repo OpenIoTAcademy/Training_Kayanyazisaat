@@ -38,9 +38,9 @@ int main(void)
     	*destptr++ = *text++;
     }
     len = len + 4;
-    iResult = kySocket_send(&connection, (const char*)sendbuf, len);
-    iResult = kySocket_receive(&connection, recvbuf, len);
-    kySocket_destroy(&connection);
+//    iResult = kySocket_send(&connection, (const char*)sendbuf, len);
+//    iResult = kySocket_receive(&connection, recvbuf, len);
+//    kySocket_destroy(&connection);
     kySocket_quit();
     printf("End Of Main\n");
     return 0;

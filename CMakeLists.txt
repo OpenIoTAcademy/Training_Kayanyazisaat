@@ -31,7 +31,7 @@ project(${NAME_OF_PROJECT}      # Project name
         )
 
 set(MODULES_SOURCE_DIR ${${CMAKE_PROJECT_NAME}_SOURCE_DIR}/source)
-set(DRIVERS_SOURCE_DIR ${${CMAKE_PROJECT_NAME}_SOURCE_DIR}/drivers)
+set(DRIVERS_SOURCE_DIR ${${CMAKE_PROJECT_NAME}_SOURCE_DIR}/Drivers)
 
 # Create Main Project executable
 add_executable(${CMAKE_PROJECT_NAME})
