@@ -1,3 +1,4 @@
+#include <stdint.h>
 #include <stdlib.h>
 #include <stdio.h>
 //#include "gpio_if.h"
@@ -10,25 +11,34 @@
 #include <sys/socket.h>
 #endif
 #include "ky_socket_if.h"
+#include "gpio_if.h"
+
+typedef struct
+{
+	char port ;
+	int  pin;
+
+
+}tkyGpioDef ;
 
 int main(void)
 {
-    int iResult;
-    setvbuf(stdout, NULL, _IONBF, 0);
+// Don't Erase
+	int iResult;
+	setvbuf(stdout, NULL, _IONBF, 0);
     if(kySocket_init() != 0)
     {
         printf("WSAStartup failed with error: %d\n", iResult);
         kySocket_quit();
         return 1;
     }
+// Start of Main
+	static tkySocketInfo connection = {0};
 
-    tkySocketInfo connection = {0};
 
-    if (kySocket_create(&connection, "localhost", "9999") != 0)
-    {
-    }
 
-    const char *text = "GPIOA05DI";
+    const char *text = "GPIOA10D0";
+
     char sendbuf[20] = {0};
     char recvbuf[20] = {0};
 
@@ -43,11 +53,19 @@ int main(void)
     	*destptr++ = *text++;
     }
     len = len + 4;
+
+    kySocket_create(&connection, "localhost", "9999");
+
     iResult = kySocket_send(&connection, (const char*)sendbuf, len);
     iResult = kySocket_receive(&connection, recvbuf, len);
-    printf("Received Data=%s\n", recvbuf);
+
     kySocket_destroy(&connection);
+
+// End of Main
+
+// Don't Erase
     kySocket_quit();
     printf("End Of Main\n");
+
     return 0;
 }
