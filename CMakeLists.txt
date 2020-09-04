@@ -2,13 +2,6 @@
 set(CMAKE_SYSTEM_NAME Generic)
 cmake_minimum_required(VERSION 3.12)
 
-# Main project name here. Submodules will have different project names.
-project(Template            # Project name
-        VERSION 0.0.1       # Project Version
-        DESCRIPTION "Template Embedded Project"
-        LANGUAGES C CXX ASM
-        )
-
 if(NOT DEFINED ARCH)
     set(ARCH native)
 endif()
@@ -16,7 +9,9 @@ endif()
 string(TOLOWER ${ARCH} ARCH)
 
 if(ARCH STREQUAL "native")
-    message(STATUS "Host system selected for compile")
+    message(STATUS "Emulator system selected for compile")
+    set(NAME_OF_PROJECT KayanyaziEmulator)
+    set(DESCRIPTION_OF_RPOJECT "Kayan Yazi emulator compilation")
 elseif(ARCH STREQUAL "arm")
     message(STATUS "ARM none-eabi architecture selected")
 elseif(ARCH STREQUAL "armhf")
@@ -29,18 +24,29 @@ if(NOT EXISTS ${CMAKE_SOURCE_DIR}/environment/${ARCH}/system.cmake)
     message(FATAL_ERROR "Target system settings file is missing. Please provide proper settings file.")
 endif()
 
-set(MODULES_SOURCE_DIR ${${CMAKE_PROJECT_NAME}_SOURCE_DIR}/source)
-set(DRIVERS_SOURCE_DIR ${${CMAKE_PROJECT_NAME}_SOURCE_DIR}/drivers)
+project(${NAME_OF_PROJECT}      # Project name
+        VERSION 0.0.1           # Project Version
+        DESCRIPTION ${DESCRIPTION_OF_RPOJECT}
+        LANGUAGES C CXX ASM
+        )
 
-include("${CMAKE_SOURCE_DIR}/environment/${ARCH}/system.cmake")
+set(MODULES_SOURCE_DIR ${${CMAKE_PROJECT_NAME}_SOURCE_DIR}/source)
+set(DRIVERS_SOURCE_DIR ${${CMAKE_PROJECT_NAME}_SOURCE_DIR}/Drivers)
 
 # Create Main Project executable
 add_executable(${CMAKE_PROJECT_NAME})
-# Add main.c for Main proejct. 
-target_sources(${CMAKE_PROJECT_NAME} PUBLIC ${MODULES_SOURCE_DIR}/main.c)
+
+include("${CMAKE_SOURCE_DIR}/environment/${ARCH}/system.cmake")
+if(ARCH STREQUAL "native")
+    # Add main.c proejct. 
+    target_include_directories(${CMAKE_PROJECT_NAME} PUBLIC ${${CMAKE_PROJECT_NAME}_SOURCE_DIR}/projects/gcc_host/inc)
+    target_sources(${CMAKE_PROJECT_NAME} PUBLIC ${${CMAKE_PROJECT_NAME}_SOURCE_DIR}/projects/gcc_host/main.c)
+    target_sources(${CMAKE_PROJECT_NAME} PUBLIC ${${CMAKE_PROJECT_NAME}_SOURCE_DIR}/projects/gcc_host/ky_socket.c)
+endif()
 
 # Add submodules to the project. Each submodule should have it's own CMakeLists.txt 
 add_subdirectory(${DRIVERS_SOURCE_DIR}/gpio)
+target_compile_options(${CMAKE_PROJECT_NAME} PUBLIC "-O0" "-g3" "-DDEBUG")
 
 # Set C/C++ compiler settings
 set(CMAKE_ASM_COMPILER  "${COMPILER_PREFIX}gcc -x assembler-with-cpp")
@@ -51,5 +57,5 @@ set(CMAKE_OBJDUMP       ${COMPILER_PREFIX}objdump)
 message(STATUS "Compiler prefix =" ${COMPILER_PREFIX})
 
 # Include Splint static analysis tool
-include(${CMAKE_SOURCE_DIR}/environment/cmakeTools/splint.cmake)
+#include(${CMAKE_SOURCE_DIR}/environment/cmakeTools/splint.cmake)
 
