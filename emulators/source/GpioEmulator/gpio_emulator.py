@@ -19,7 +19,7 @@ class SocketRequestHandler(socketserver.BaseRequestHandler):
         """
 
         # self.request is the TCP socket connected to the client
-        active_thread = threading.current_thread()
+        #active_thread = threading.current_thread()
         
         data = self.request.recv(1024)
         if len(data) > 4 :

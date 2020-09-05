@@ -7,7 +7,7 @@ Created on 6 Aug 2020
 import sys
 import signal
 import time
-sys.path.append("gpio/")
+sys.path.append("GpioEmulator/")
 
 # import local libraries
 from gpio_emulator import GpioEmulator
