@@ -10,17 +10,24 @@ import time
 # import local libraries
 from GpioEmulator import GpioEmulator
 
-_is_running = True
+IS_RUNNING = True
 
 def signal_handler(sig, frame):
-    global _is_running
-    _is_running = False
+    """ Ctrl+C Interrupt Signal Handler.
+        This function prototype needs sig and frame parameters and currently not used.
+        Will be disabled temporarily in pylint.
+    """
+    #pylint: disable=unused-argument,global-statement
+    global IS_RUNNING
+    IS_RUNNING = False
     print("Interrupt SIGNAL received. Closing application")
 
-def start_emulator(emulators, emulator, params):
-    i = emulator(params[0], "localhost", params[1])
-    emulators.append(i)
+def start_emulator(emulator, params):
+    """ Creates and starts the selected emulator with the parameters
+    """
+    i = emulator("localhost", params[0], params[1])
     i.start()
+    return i
 
 if __name__ == "__main__":
     signal.signal(signal.SIGINT, signal_handler)
@@ -28,9 +35,9 @@ if __name__ == "__main__":
 
     # Create new threads list to keep track of emulators
     emulators = []
-    start_emulator(emulators, GpioEmulator, [{"A":2, "B":3}, 9999])
+    emulators.append(start_emulator(GpioEmulator, [9999, {"A":2, "B":3}]))
 
-    while _is_running:
+    while IS_RUNNING:
         pass
 
     for e in emulators :

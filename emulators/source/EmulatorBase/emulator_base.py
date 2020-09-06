@@ -4,7 +4,6 @@
 '''
 import threading
 import socketserver
-from tkinter.constants import ACTIVE
 
 class EmulatorBase(threading.Thread):
     """ Threaded emulator class
@@ -27,7 +26,7 @@ class EmulatorBase(threading.Thread):
                     active_thread = threading.current_thread()
                     active_thread.process_data(data.decode(), self.request)
         #enddef handle
-        
+
         def finish(self):
             """ The request handler class for our server.
             It is instantiated once per connection to the server, and must
@@ -58,7 +57,7 @@ class EmulatorBase(threading.Thread):
         """ Process received data. Should be overridden by class
         """
         #enddef
-        
+
     def run(self):
         """ Thread class overriden run function
         """

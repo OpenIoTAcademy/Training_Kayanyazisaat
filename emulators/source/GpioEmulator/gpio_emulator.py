@@ -8,7 +8,7 @@ from EmulatorBase import EmulatorBase
 class GpioEmulator(EmulatorBase):
     """ Emulator class
     """
-    def __init__(self, port_list, server, server_port):
+    def __init__(self, server, server_port, port_list):
         """ Constructor of the Class
         """
         # initialise local variables
@@ -17,25 +17,32 @@ class GpioEmulator(EmulatorBase):
         self.server_port = server_port
         super().__init__(emulator_name=__class__.__name__,
                          server=self.server_addr, port_num=self.server_port)
+        self.commands = self.initialise_commands()
         self.ports = []
         self.port_lkup = {}
-        i = 0;
+        i = 0
         for key in port_list:
             port = self.create_port_instance(port_list[key])
             self.ports.append(port)
             self.port_lkup.update({key:i})
             i += 1
-            
+
     #enddef __init__
 
-    def create_port_instance(self, number_of_pins):
-        port = list( {"Direction" : 0, "Value": 0, "Pull-up": 0, "Pull-down" :0 } for _ in range(number_of_pins) )
-        return port
+    @classmethod
+    def create_port_instance(cls, number_of_pins):
+
+        """ Creates and return list of pin definitions for port instance.
+            @param number_of_pins: Number of pins in port instance
+        """
+        return list( {"Direction" : 0, "Value": 0, "Pull-up": 0, "Pull-down" :0 } for _ in range(number_of_pins) )
     #enddef create_port_instance
 
-    def initialise_commands(self):
-        
-        self.commands = {
+    @classmethod
+    def initialise_commands(cls):
+        """ Initialises commands for emulator interface
+        """
+        return {
             "D": "Direction",
             "V": "Value",
             "U": "Pull-up",
@@ -45,9 +52,9 @@ class GpioEmulator(EmulatorBase):
     #enddef initialise_commands
 
     def process_data(self, received_data, request):
-        """ Process received data. Should be overridden by class
+        """ Overridden process function for received data.
         """
-        if "GPIO"== received_data[0:4]:
+        if received_data[0:4] == "GPIO":
             port = received_data[4]
             pin = received_data[5:7]
             command = received_data[7]
