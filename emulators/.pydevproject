@@ -16,6 +16,7 @@
     
     <pydev_pathproperty name="org.python.pydev.PROJECT_SOURCE_PATH">
         <path>/${PROJECT_DIR_NAME}/source</path>
+        <path>/${PROJECT_DIR_NAME}/source/EmulatorBase</path>
         <path>/${PROJECT_DIR_NAME}/source/GpioEmulator</path>
     </pydev_pathproperty>
                 

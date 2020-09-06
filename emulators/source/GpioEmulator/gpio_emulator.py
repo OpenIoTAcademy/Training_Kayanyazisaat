@@ -3,84 +3,61 @@ Created on 5 Aug 2020
 
 @author: IBeRyUS
 '''
-import threading
-import socketserver
+from EmulatorBase import EmulatorBase
 
-class SocketRequestHandler(socketserver.BaseRequestHandler):
-    """ TCP Socket request handler class
+class GpioEmulator(EmulatorBase):
+    """ Emulator class
     """
-    def handle(self):
-        """
-        The request handler class for our server.
-
-        It is instantiated once per connection to the server, and must
-        override the handle() method to implement communication to the
-        client.
-        """
-
-        # self.request is the TCP socket connected to the client
-        #active_thread = threading.current_thread()
-        
-        data = self.request.recv(1024)
-        if len(data) > 4 :
-            data_len = data[0:4]
-            data_len = int.from_bytes(data_len, byteorder='little')
-            if data_len < 50:
-                data = data[4:(data_len + 4)]
-                self.request.sendall(data)
-                print("Data = {}".format(data))
-#        active_thread.set_value_hede()
-        #print("{} wrote:".format(self.client_address[0]))
-        # just send back the same data, but upper-cased
-        # self.request.sendall(self.data.upper())
-
-    def finish(self):
-        """
-        The request handler class for our server.
-        It is instantiated once per connection to the server, and must
-        override the handle() method to implement communication to the
-        client.
-        """
-        print("Peer {} Port {} Disconnected".format(self.client_address[0], self.client_address[1]))
-
-class GpioEmulator(threading.Thread):
-    """
-    Threaded emulator class
-    """
-    def __init__(self, server, port_num):
-        """
-        Constructor
+    def __init__(self, port_list, server, server_port):
+        """ Constructor of the Class
         """
         # initialise local variables
         #self.delay = delay
-        self.server = server
-        self.port_num = port_num
-        # call inherited Thread init function and set inherited variable values
-        self.data_count = 0
-        super().__init__(name=__class__.__name__)
-        self.server = socketserver.TCPServer((self.server, self.port_num),
-                                             SocketRequestHandler, bind_and_activate=False)
+        self.server_addr = server
+        self.server_port = server_port
+        super().__init__(emulator_name=__class__.__name__,
+                         server=self.server_addr, port_num=self.server_port)
+        self.ports = []
+        self.port_lkup = {}
+        i = 0;
+        for key in port_list:
+            port = self.create_port_instance(port_list[key])
+            self.ports.append(port)
+            self.port_lkup.update({key:i})
+            i += 1
+            
     #enddef __init__
 
-    def service_actions(self):
+    def create_port_instance(self, number_of_pins):
+        port = list( {"Direction" : 0, "Value": 0, "Pull-up": 0, "Pull-down" :0 } for _ in range(number_of_pins) )
+        return port
+    #enddef create_port_instance
+
+    def initialise_commands(self):
+        
+        self.commands = {
+            "D": "Direction",
+            "V": "Value",
+            "U": "Pull-up",
+            "P": "Pull-down",
+            "R": "Read",
+            }
+    #enddef initialise_commands
+
+    def process_data(self, received_data, request):
+        """ Process received data. Should be overridden by class
         """
-        Overridden service_actions function.
+        if "GPIO"== received_data[0:4]:
+            port = received_data[4]
+            pin = received_data[5:7]
+            command = received_data[7]
+            param = received_data[8]
+            print(received_data, port, pin, command, param)
+        request.sendall(received_data.encode("utf-8"))
+        #enddef
+
+    def service_actions(self):
+        """ Overridden service_actions function.
         """
 #        print(self.hede)
     #enddef service_actions
-
-    def run(self):
-        print ("Starting server in " + self.name)
-        self.server.server_bind()
-        self.server.server_activate()
-        self.server.service_actions = self.service_actions
-        self.server.serve_forever()
-        print("Stopping server in "+ self.name)
-
-    #enddef run
-    def close(self):
-        """
-        Close server and let thread to shutdown
-        """
-        self.server.shutdown()
-    #enddef close

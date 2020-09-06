@@ -4,13 +4,11 @@ Created on 6 Aug 2020
 @author: IBeRyUS
 '''
 # import python and pip libraries
-import sys
 import signal
 import time
-sys.path.append("GpioEmulator/")
 
 # import local libraries
-from gpio_emulator import GpioEmulator
+from GpioEmulator import GpioEmulator
 
 _is_running = True
 
@@ -19,8 +17,8 @@ def signal_handler(sig, frame):
     _is_running = False
     print("Interrupt SIGNAL received. Closing application")
 
-def start_emulator(emulators, emulator, port):
-    i = emulator("localhost", port)
+def start_emulator(emulators, emulator, params):
+    i = emulator(params[0], "localhost", params[1])
     emulators.append(i)
     i.start()
 
@@ -30,7 +28,7 @@ if __name__ == "__main__":
 
     # Create new threads list to keep track of emulators
     emulators = []
-    start_emulator(emulators, GpioEmulator, 9999)
+    start_emulator(emulators, GpioEmulator, [{"A":2, "B":3}, 9999])
 
     while _is_running:
         pass
