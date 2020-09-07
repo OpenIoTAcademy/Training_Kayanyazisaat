@@ -22,8 +22,13 @@ int main(void)
         return 1;
     }
 
+    tkySocketInfo connection = {0};
 
-    const char *text = "GPIOADI";
+    if (kySocket_create(&connection, "localhost", "9999") != 0)
+    {
+    }
+
+    const char *text = "GPIOA05DI";
     char sendbuf[20] = {0};
     char recvbuf[20] = {0};
 
@@ -38,9 +43,10 @@ int main(void)
     	*destptr++ = *text++;
     }
     len = len + 4;
-//    iResult = kySocket_send(&connection, (const char*)sendbuf, len);
-//    iResult = kySocket_receive(&connection, recvbuf, len);
-//    kySocket_destroy(&connection);
+    iResult = kySocket_send(&connection, (const char*)sendbuf, len);
+    iResult = kySocket_receive(&connection, recvbuf, len);
+    printf("Received Data=%s\n", recvbuf);
+    kySocket_destroy(&connection);
     kySocket_quit();
     printf("End Of Main\n");
     return 0;
