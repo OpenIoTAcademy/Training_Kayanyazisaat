@@ -1,3 +1,4 @@
+#include <stdint.h>
 #include <stdlib.h>
 #include <stdio.h>
 //#include "gpio_if.h"
@@ -10,44 +11,36 @@
 #include <sys/socket.h>
 #endif
 #include "ky_socket_if.h"
+#include "gpio_if.h"
 
 int main(void)
 {
-    int iResult;
-    setvbuf(stdout, NULL, _IONBF, 0);
+// Don't Erase
+	int iResult;
+	setvbuf(stdout, NULL, _IONBF, 0);
     if(kySocket_init() != 0)
     {
         printf("WSAStartup failed with error: %d\n", iResult);
         kySocket_quit();
         return 1;
     }
+    tGpioDef led_pin1  = { .port = PORT_A, .pin = 2};
+    tGpioDef pin2  	   = { .port = PORT_B, .pin = 9};
+    tGpioDef led_pin3  = { .port = PORT_C, .pin = 11};
+    tGpioDef pin4  	   = { .port = PORT_C, .pin = 15};
 
-    tkySocketInfo connection = {0};
+// Start of Main
+    gpio_init();
+    gpio_setDirection(led_pin1, GPIO_DIRECTION_OUTPUT);
+    gpio_setDirection(pin2, GPIO_DIRECTION_INPUT);
+    gpio_setDirection(led_pin3, GPIO_DIRECTION_OUTPUT);
+    gpio_setDirection(pin4, GPIO_DIRECTION_INPUT);
 
-    if (kySocket_create(&connection, "localhost", "9999") != 0)
-    {
-    }
+// End of Main
 
-    const char *text = "GPIOA05DI";
-    char sendbuf[20] = {0};
-    char recvbuf[20] = {0};
-
-
-    int len = strlen(text);
-    int *lenptr = (int *)sendbuf;
-    char *destptr;
-    *lenptr++ = len;
-    destptr = (char *)lenptr;
-    for (int i = len; i; i--)
-    {
-    	*destptr++ = *text++;
-    }
-    len = len + 4;
-    iResult = kySocket_send(&connection, (const char*)sendbuf, len);
-    iResult = kySocket_receive(&connection, recvbuf, len);
-    printf("Received Data=%s\n", recvbuf);
-    kySocket_destroy(&connection);
+// Don't Erase
     kySocket_quit();
     printf("End Of Main\n");
+
     return 0;
 }
