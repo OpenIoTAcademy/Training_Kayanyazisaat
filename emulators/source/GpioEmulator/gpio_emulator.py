@@ -60,7 +60,7 @@ class GpioEmulator(EmulatorBase):
             command = received_data[7]
             param = received_data[8]
             print(received_data, port, pin, command, param)
-        request.sendall(received_data.encode("utf-8"))
+        #request.sendall(received_data.encode("utf-8"))
         #enddef
 
     def service_actions(self):

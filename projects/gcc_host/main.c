@@ -13,14 +13,6 @@
 #include "ky_socket_if.h"
 #include "gpio_if.h"
 
-typedef struct
-{
-	char port ;
-	int  pin;
-
-
-}tkyGpioDef ;
-
 int main(void)
 {
 // Don't Erase
@@ -32,34 +24,17 @@ int main(void)
         kySocket_quit();
         return 1;
     }
+    tGpioDef led_pin1  = { .port = PORT_A, .pin = 2};
+    tGpioDef pin2  	   = { .port = PORT_B, .pin = 9};
+    tGpioDef led_pin3  = { .port = PORT_C, .pin = 11};
+    tGpioDef pin4  	   = { .port = PORT_C, .pin = 15};
+
 // Start of Main
-	static tkySocketInfo connection = {0};
-
-
-
-    const char *text = "GPIOA10D0";
-
-    char sendbuf[20] = {0};
-    char recvbuf[20] = {0};
-
-
-    int len = strlen(text);
-    int *lenptr = (int *)sendbuf;
-    char *destptr;
-    *lenptr++ = len;
-    destptr = (char *)lenptr;
-    for (int i = len; i; i--)
-    {
-    	*destptr++ = *text++;
-    }
-    len = len + 4;
-
-    kySocket_create(&connection, "localhost", "9999");
-
-    iResult = kySocket_send(&connection, (const char*)sendbuf, len);
-    iResult = kySocket_receive(&connection, recvbuf, len);
-
-    kySocket_destroy(&connection);
+    gpio_init();
+    gpio_setDirection(led_pin1, GPIO_DIRECTION_OUTPUT);
+    gpio_setDirection(pin2, GPIO_DIRECTION_INPUT);
+    gpio_setDirection(led_pin3, GPIO_DIRECTION_OUTPUT);
+    gpio_setDirection(pin4, GPIO_DIRECTION_INPUT);
 
 // End of Main
 

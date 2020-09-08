@@ -32,7 +32,7 @@ int kySocket_quit(void)
 
 int kySocket_create(tkySocketInfo *connection, const char *addr, const char *port)
 {
-	int retval;
+    int retval;
     struct addrinfo *result = NULL;
     struct addrinfo hints = { 0 };
 
@@ -44,9 +44,9 @@ int kySocket_create(tkySocketInfo *connection, const char *addr, const char *por
     retval = getaddrinfo(addr, port, &hints, &result);
     if(0 == retval)
     {
-    	connection->sc = socket(result->ai_family, result->ai_socktype, result->ai_protocol);
-    	connection->ai_addrlen = result->ai_addrlen;
-    	memcpy(&connection->ai_addr, result->ai_addr, sizeof(struct sockaddr));
+        connection->sc = socket(result->ai_family, result->ai_socktype, result->ai_protocol);
+        connection->ai_addrlen = result->ai_addrlen;
+        memcpy(&connection->ai_addr, result->ai_addr, sizeof(struct sockaddr));
     }
     return (retval);
 }
@@ -58,38 +58,38 @@ int kySocket_destroy(tkySocketInfo *connection)
 
 int kySocket_send(const tkySocketInfo *connection, const char *buf, const int len)
 {
-	int retval = 0;
-	if (0 == connect(connection->sc, &connection->ai_addr, connection->ai_addrlen))
-	{
-		if (len != send(connection->sc, buf, len, 0))
-		{
-			retval = -2;
-		}
-		if (0 !=  shutdown(connection->sc, SD_SEND))
-		{
-			retval = -3;
-		}
-	}
-	else
-	{
-		retval = -1;
-	}
-	return (retval);
+    int retval = 0;
+    if (0 == connect(connection->sc, &connection->ai_addr, connection->ai_addrlen))
+    {
+        if (len != send(connection->sc, buf, len, 0))
+        {
+            retval = -2;
+        }
+        if (0 !=  shutdown(connection->sc, SD_SEND))
+        {
+            retval = -3;
+        }
+    }
+    else
+    {
+        retval = -1;
+    }
+    return (retval);
 }
 int kySocket_receive(const tkySocketInfo *connection, char *buf, const int len)
 {
-	int retval = 0;
-	int rx_len = 0;
+    int retval = 0;
+    int rx_len = 0;
     do {
 
         rx_len= recv(connection->sc, buf, len, 0);
         if ( rx_len > 0 )
         {
-        	retval += rx_len;
+            retval += rx_len;
         }
         else if ( rx_len != 0 )
         {
-        	retval = -1;
+            retval = -1;
         }
 
     } while( rx_len > 0 );
