@@ -14,7 +14,12 @@ int kySocket_init(void)
 {
 #ifdef WINNT
     WSADATA wsaData = {0};
-    return (WSAStartup(MAKEWORD(2,2), &wsaData));
+    int result = WSAStartup(MAKEWORD(2,2), &wsaData);
+    if (0 != result)
+    {
+    	printf("WSAStartup failed with error: %d\n", result);
+    }
+    return (result);
 #else
     return (0);
 #endif
@@ -23,7 +28,12 @@ int kySocket_init(void)
 int kySocket_quit(void)
 {
 #ifdef WINNT
-    return (WSACleanup());
+    int result = WSACleanup();
+    if (0 != result)
+    {
+    	printf("WSACleanup failed with error: %d\n", result);
+    }
+    return (result);
 #else
     return (0);
 #endif
@@ -51,6 +61,30 @@ int kySocket_create(tkySocketInfo *connection, const char *addr, const char *por
     return (retval);
 }
 
+int kySocket_connect(tkySocketInfo *connection)
+{
+    const int retval = connect(connection->sc, &connection->ai_addr, connection->ai_addrlen);
+#ifdef WINNT
+    if (0 != retval)
+    {
+    	printf("kySocket_send failed: %d\n", WSAGetLastError());
+    }
+#endif
+    return (retval);
+}
+
+int kySocket_disconnect(tkySocketInfo *connection)
+{
+    const int retval = shutdown(connection->sc, SD_SEND);
+#ifdef WINNT
+    if (0 != retval)
+    {
+    	printf("kySocket_send failed: %d\n", WSAGetLastError());
+    }
+#endif
+    return (retval);
+}
+
 int kySocket_destroy(tkySocketInfo *connection)
 {
     return (closesocket(connection->sc));
@@ -58,24 +92,14 @@ int kySocket_destroy(tkySocketInfo *connection)
 
 int kySocket_send(const tkySocketInfo *connection, const char *buf, const int len)
 {
-    int retval = 0;
-    if (0 == connect(connection->sc, &connection->ai_addr, connection->ai_addrlen))
-    {
-        if (len != send(connection->sc, buf, len, 0))
-        {
-            retval = -2;
-        }
-        if (0 !=  shutdown(connection->sc, SD_SEND))
-        {
-            retval = -3;
-        }
-    }
-    else
-    {
-        retval = -1;
-    }
+    int retval = send(connection->sc, buf, len, 0);
+	if (len == retval)
+	{
+		retval = 0;
+	}
     return (retval);
 }
+
 int kySocket_receive(const tkySocketInfo *connection, char *buf, const int len)
 {
     int retval = 0;

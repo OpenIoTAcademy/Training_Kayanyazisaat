@@ -21,6 +21,7 @@ typedef struct
 } tGpioDef ;
 
 void gpio_init(void);
+void gpio_deInit(void);
 void gpio_setDirection(const tGpioDef gpio, uint_fast8_t value );
 
 #endif  /* GPIO_IF_H */

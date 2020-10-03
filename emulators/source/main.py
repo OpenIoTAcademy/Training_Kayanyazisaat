@@ -36,6 +36,7 @@ if __name__ == "__main__":
     # Create new threads list to keep track of emulators
     emulators = []
     emulators.append(start_emulator(GpioEmulator, [9999, {"A":2, "B":3}]))
+    #emulators.append(start_emulator(GpioEmulator, [10000, {"A":2, "B":3}]))
 
     while IS_RUNNING:
         pass
