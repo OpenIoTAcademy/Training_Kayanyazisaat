@@ -42,8 +42,10 @@ class EmulatorBase(threading.Thread):
         self.serve_forever()
         print("Stopping server in "+ self.name)
     #enddef run
-    
+
     def serve_forever(self, poll_interval=0.5):
+        """ Serve forever function.
+        """
         self.__is_shut_down.clear()
         try:
             with _ServerSelector() as selector:
@@ -87,8 +89,9 @@ class EmulatorBase(threading.Thread):
         """ Close server and let thread to be shut down
         """
         self.server_active = False
-        if hasattr(self, 'cl_ac') and self.cl_ac is not None:
-            self.cl_ac.shutdown(socket.SHUT_RDWR)
-            self.cl_ac.close()
+        if hasattr(self, 'cl_ac'):
+            if isinstance(self.cl_ac, socket.socket):
+                self.cl_ac.shutdown(socket.SHUT_RDWR)
+                self.cl_ac.close()
         self.__is_shut_down.wait()
     #enddef close
