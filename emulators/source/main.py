@@ -12,6 +12,7 @@ from GpioEmulator import GpioEmulator
 
 IS_RUNNING = True
 
+
 def signal_handler(sig, frame):
     """ Ctrl+C Interrupt Signal Handler.
         This function prototype needs sig and frame parameters and currently not used.
@@ -22,6 +23,7 @@ def signal_handler(sig, frame):
     IS_RUNNING = False
     print("Interrupt SIGNAL received. Closing application")
 
+
 def start_emulator(emulator, params):
     """ Creates and starts the selected emulator with the parameters
     """
@@ -29,20 +31,21 @@ def start_emulator(emulator, params):
     i.start()
     return i
 
-if __name__ == "__main__":
-    signal.signal(signal.SIGINT, signal_handler)
+
+if __name__ == "__main__":  # C deki main()
+    signal.signal(signal.SIGINT, signal_handler)  # CTRL+C tus kombinasyonunu yakalar
     print("This is main")
 
     # Create new threads list to keep track of emulators
     emulators = []
-    emulators.append(start_emulator(GpioEmulator, [9999, {"A":2, "B":3}]))
-    #emulators.append(start_emulator(GpioEmulator, [10000, {"A":2, "B":3}]))
+    emulators.append(start_emulator(GpioEmulator, [9999, {"A": 16, "B": 16, "C": 16, "D": 16, "E": 16}]))
+    # emulators.append(start_emulator(GpioEmulator, [10000, {"A":2, "B":3}]))
 
     while IS_RUNNING:
         pass
 
-    for e in emulators :
+    for e in emulators:
         time.sleep(0.2)
         e.close()
         e.join()
-    print ("Exiting Main Thread")
+    print("Exiting Main Thread")
