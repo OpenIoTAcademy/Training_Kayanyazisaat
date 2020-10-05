@@ -46,7 +46,7 @@ endif()
 
 # Add submodules to the project. Each submodule should have it's own CMakeLists.txt 
 add_subdirectory(${DRIVERS_SOURCE_DIR}/gpio)
-target_compile_options(${CMAKE_PROJECT_NAME} PUBLIC "-O0" "-g3" "-DDEBUG")
+target_compile_options(${CMAKE_PROJECT_NAME} PUBLIC "-O0" "-g3" "-DDEBUG" "-Wall")
 
 # Set C/C++ compiler settings
 set(CMAKE_ASM_COMPILER  "${COMPILER_PREFIX}gcc -x assembler-with-cpp")

@@ -17,11 +17,16 @@ void gpio_init(void)
 {
     if (kySocket_create(&m_gpio_connection, "localhost", "9999") != 0)
     {
+        kySocket_destroy(&m_gpio_connection);
     }
-    //kySocket_destroy(&connection);
+    kySocket_connect(&m_gpio_connection);
 }
 
-
+void gpio_deInit(void)
+{
+    kySocket_disconnect(&m_gpio_connection);
+    kySocket_destroy(&m_gpio_connection);
+}
 /*
 void gpio_setDirection(const tGpioDef gpio, uint_fast8_t value )
 {

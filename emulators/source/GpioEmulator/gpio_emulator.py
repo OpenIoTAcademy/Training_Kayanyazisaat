@@ -13,10 +13,8 @@ class GpioEmulator(EmulatorBase):
         """
         # initialise local variables
         #self.delay = delay
-        self.server_addr = server
-        self.server_port = server_port
         super().__init__(emulator_name=__class__.__name__,
-                         server=self.server_addr, port_num=self.server_port)
+                         server_addr=server, port_num=server_port)
         self.commands = self.initialise_commands()
         self.ports = []
         self.port_lkup = {}
@@ -51,7 +49,7 @@ class GpioEmulator(EmulatorBase):
             }
     #enddef initialise_commands
 
-    def process_data(self, received_data, request):
+    def process_data(self, received_data):
         """ Overridden process function for received data.
         """
         if received_data[0:4] == "GPIO":
@@ -59,7 +57,7 @@ class GpioEmulator(EmulatorBase):
             pin = received_data[5:7]
             command = received_data[7]
             param = received_data[8]
-            print(received_data, port, pin, command, param)
+            print(received_data, "PORT=", port, pin, command, param)
         #request.sendall(received_data.encode("utf-8"))
         #enddef
 
