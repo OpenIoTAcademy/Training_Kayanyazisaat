@@ -22,41 +22,7 @@ void gpio_init(void)
 }
 
 
-/*
-void gpio_setDirection(const tGpioDef gpio, uint_fast8_t value )
-{
-    char sendbuf[20] = {0};
-    char tmpbuf[20];
-    sendbuf[4] = 'G';
-    sendbuf[5] = 'P';
-    sendbuf[6] = 'I';
-    sendbuf[7] = 'O';
-    sendbuf[8] = ('A' + gpio.port);
-    if (gpio.pin > 9)
-    {
-        sendbuf[9] = '1';
-    }
-    else
-    {
-        sendbuf[9] = '0';
-    }
 
-    sendbuf[10] = '0' + (gpio.pin % 10);
-    sendbuf[11] = 'D';
-    sendbuf[12] = value ? '1': '0';
-    sendbuf[0] = 9;
-    kySocket_send(&m_gpio_connection, sendbuf, 13);
-    //kySocket_receive(&m_gpio_connection, tmpbuf, 20);
-
-    char *txptr = &sendbuf[4];
-    uint32_t length = 0;
-    txptr[length++] = 'G';
-    txptr[length++] = 'P';
-    txptr[length++] = 'I';
-    txptr[length++] = 'O';
-
-}
-*/
 void gpio_setDirection(const tGpioDef gpio, uint_fast8_t value )
 {
     char sendbuf[20] = {0};
@@ -70,34 +36,14 @@ void gpio_setDirection(const tGpioDef gpio, uint_fast8_t value )
     //memcpy(&sendbuf[4], tmpbuf, length);
     kySocket_send(&m_gpio_connection, sendbuf, length + sizeof(length));
 }
+void gpio_setPullUp(const tGpioDef gpio,uint_fast8_t value)
+{
+    char value_char = value ? '1' : '0';
+}
+void gpio_setPullDown(const tGpioDef gpio,uint_fast8_t value)
+{
 
-/*
- * Fonksiyonlar ya void olacaklar ya da int olarak durum donecekler
- * Parametreler sende
- * typedef ile tkyGpioDef structure
- *        Port  No
- *        Pin   No
- * gpio_deInit()
- * gpio_setDirection(tGpioDef, value)
- * gpio_getDirection(tGpioDef, &retVal)
- * gpio_setPinLevel
- * gpio_getPinLevel
- * gpio_setPullUp
- * gpio_getPullUp
- * gpio_setPullDown
- * gpio_getPullDown
- *
-Baslik    GPIO
-Port No    A/B/C....
-Pin No     00/15
-Komut      D/S/U/P/R
-Parametre  1/0
+    char value_char = value ? '1' : '0';
 
-Komutlar
-D -> Direction Giris/Cikis
-V -> Values    1/0
-U -> Pull-up   1/0
-P -> Pull-Down 1/0
-R -> Read      D/V/U/P
- *
- */
+}
+
