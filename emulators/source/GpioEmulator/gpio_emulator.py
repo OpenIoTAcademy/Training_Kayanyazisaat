@@ -67,3 +67,16 @@ class GpioEmulator(EmulatorBase):
         """
         # print(self.hede)
     # enddef service_actions
+
+    def gpio_set_value(self, pin_value, set_value):
+        pin_value = set_value
+        return set_value
+
+
+    def change_value(self,pin,value,port,command):
+        self.gpio_set_value(self.pin,pin)
+        self.gpio_set_value(self.value, value)
+        self.gpio_set_value(self.port, port)
+        self.gpio_set_value(self.command, command)
+
+        return pin,value,port,command
