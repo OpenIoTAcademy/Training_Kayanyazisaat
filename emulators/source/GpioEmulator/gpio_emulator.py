@@ -7,11 +7,9 @@ from EmulatorBase import EmulatorBase
 
 
 class GpioEmulator(EmulatorBase):
-    """ Emulator class
-    """
+    """Gpio Emulator Class."""
     def __init__(self, server, server_port, port_list):
-        """ Constructor of the Class
-        """
+        """Initialises class."""
         # initialise local variables
         # self.delay = delay
         super().__init__(emulator_name=__class__.__name__,
@@ -25,22 +23,19 @@ class GpioEmulator(EmulatorBase):
             self.ports.append(port)
             self.port_lkup.update({key: i})
             i += 1
-
     # enddef __init__
 
     @classmethod
     def create_port_instance(cls, number_of_pins):
-
-        """ Creates and return list of pin definitions for port instance.
-            @param number_of_pins: Number of pins in port instance
+        """Creates and return list of pin definitions for port instance.
+           @param number_of_pins: Number of pins in port instance
         """
-        return list({"Direction": 0, "Value": 0, "Pull-up": 0, "Pull-down": 0} for _ in range(number_of_pins))
+        return list({"Direction": 1, "Value": 0, "Pull-up": 0, "Pull-down": 0} for _ in range(number_of_pins))
     # enddef create_port_instance
 
     @classmethod
     def initialise_commands(cls):
-        """ Initialises commands for emulator interface
-        """
+        """Initialises commands for emulator interface."""
         return {
             "D": "Direction",
             "V": "Value",
@@ -51,32 +46,25 @@ class GpioEmulator(EmulatorBase):
     # enddef initialise_commands
 
     def process_data(self, received_data):
-        """ Overridden process function for received data.
+        """Overridden process function for received data.
+           This function called by EmulatorBase in try block.
+           This prevents any failure on process_data function to cause connection issues.
         """
         if received_data[0:4] == "GPIO":
             port = received_data[4]
-            pin = received_data[5:7]
+            pin = int(received_data[5:7])
             command = received_data[7]
-            param = received_data[8]
-            print(received_data, "PORT=", port, pin, command, param)
+            param = int(received_data[8])
+            # print(received_data, "PORT=", port, pin, command, param)
+            if command != "R":
+                self._update_pin_field_values(self.commands[command], port, pin, param)
+            else:
+                print("Read geldi loooo")
         # request.sendall(received_data.encode("utf-8"))
         # enddef
 
-    def service_actions(self):
-        """ Overridden service_actions function.
-        """
-        # print(self.hede)
-    # enddef service_actions
-
-    def gpio_set_value(self, pin_value, set_value):
-        pin_value = set_value
-        return set_value
-
-
-    def change_value(self,pin,value,port,command):
-        self.gpio_set_value(self.pin,pin)
-        self.gpio_set_value(self.value, value)
-        self.gpio_set_value(self.port, port)
-        self.gpio_set_value(self.command, command)
-
-        return pin,value,port,command
+    def _update_pin_field_values(self, command, port, pin, param):
+        """Updates pin field values."""
+        print("Received Command =", command , port, pin, param)
+        self.ports[self.port_lkup[port]][pin][command] = param
+        # enddef update_values
