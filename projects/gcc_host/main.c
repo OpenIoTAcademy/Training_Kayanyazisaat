@@ -26,7 +26,7 @@ int main(void)
     tGpioDef pin2      = { .port = PORT_B, .pin = 9};
     tGpioDef led_pin3  = { .port = PORT_C, .pin = 11};
     tGpioDef pin4      = { .port = PORT_C, .pin = 15};
-    while(1)
+    //while(1)
     {
 // Start of Main
         gpio_init();
