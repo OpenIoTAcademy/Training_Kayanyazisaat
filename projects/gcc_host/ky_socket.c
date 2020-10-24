@@ -17,7 +17,7 @@ int kySocket_init(void)
     int result = WSAStartup(MAKEWORD(2,2), &wsaData);
     if (0 != result)
     {
-        printf("WSAStartup failed with error: %d\n", result);
+        printf("kySocket_init failed. WSA Error=: %d\n", result);
     }
     return (result);
 #else
@@ -28,17 +28,16 @@ int kySocket_init(void)
 int kySocket_quit(void)
 {
 #ifdef WINNT
-    int result = WSACleanup();
-    if (0 != result)
+    const int result = WSACleanup();
+    if (SOCKET_ERROR  == result)
     {
-        printf("WSACleanup failed with error: %d\n", result);
+        printf("kySocket_quit failed. WSA Error= %d\n", WSAGetLastError());
     }
     return (result);
 #else
     return (0);
 #endif
 }
-
 
 int kySocket_create(tkySocketInfo *connection, const char *addr, const char *port)
 {
@@ -65,9 +64,9 @@ int kySocket_connect(tkySocketInfo *connection)
 {
     const int retval = connect(connection->sc, &connection->ai_addr, connection->ai_addrlen);
 #ifdef WINNT
-    if (0 != retval)
+    if (SOCKET_ERROR == retval)
     {
-        printf("kySocket_send failed: %d\n", WSAGetLastError());
+        printf("kySocket_connect failed. WSA Error= %d\n", WSAGetLastError());
     }
 #endif
     return (retval);
@@ -77,9 +76,9 @@ int kySocket_disconnect(tkySocketInfo *connection)
 {
     const int retval = shutdown(connection->sc, SD_SEND);
 #ifdef WINNT
-    if (0 != retval)
+    if (SOCKET_ERROR == retval)
     {
-        printf("kySocket_send failed: %d\n", WSAGetLastError());
+        printf("kySocket_disconnect failed. WSA Error= %d\n", WSAGetLastError());
     }
 #endif
     return (retval);
@@ -87,7 +86,14 @@ int kySocket_disconnect(tkySocketInfo *connection)
 
 int kySocket_destroy(tkySocketInfo *connection)
 {
-    return (closesocket(connection->sc));
+    const int retval = closesocket(connection->sc);
+#ifdef WINNT
+    if (SOCKET_ERROR == retval)
+    {
+        printf("kySocket_destroy failed. WSA Error= %d\n", WSAGetLastError());
+    }
+#endif
+    return (retval);
 }
 
 int kySocket_send(const tkySocketInfo *connection, const char *buf, const int len)
@@ -97,26 +103,30 @@ int kySocket_send(const tkySocketInfo *connection, const char *buf, const int le
     {
         retval = 0;
     }
+    else if (SOCKET_ERROR == retval)
+    {
+#ifdef WINNT
+        printf("kySocket_send failed. WSA Error= %d\n", WSAGetLastError());
+#endif
+    }
     return (retval);
 }
 
-int kySocket_receive(const tkySocketInfo *connection, char *buf, const int len)
+int kySocket_receive(const tkySocketInfo *connection, char *buf, const int length_max)
 {
-    int retval = 0;
-    int rx_len = 0;
-    do {
-
-        rx_len= recv(connection->sc, buf, len, 0);
-        if ( rx_len > 0 )
-        {
-            retval += rx_len;
-        }
-        else if ( rx_len != 0 )
-        {
-            retval = -1;
-        }
-
-    } while( rx_len > 0 );
+    int rx_len;
+    int retval  = recv(connection->sc, (char*)&rx_len, 4, 0);
+    if ( retval == 4 && rx_len < length_max )
+    {
+        retval = recv(connection->sc, buf, rx_len, 0);
+    }
+    else
+    {
+        retval = -1;
+#ifdef WINNT
+        printf("kySocket_receive failed. WSA Error= %d\n", WSAGetLastError());
+#endif
+    }
 
     return (retval);
 }

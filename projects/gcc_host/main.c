@@ -27,13 +27,17 @@ int main(void)
     tGpioDef led_pin3  = { .port = PORT_C, .pin = 11};
     tGpioDef pin4      = { .port = PORT_C, .pin = 15};
     //while(1)
+    uint_fast8_t value;
     {
 // Start of Main
         gpio_init();
+//        gpio_getDirection(led_pin1);
         gpio_setDirection(led_pin1, GPIO_DIRECTION_OUTPUT);
-        gpio_setDirection(pin2, GPIO_DIRECTION_INPUT);
-        gpio_setDirection(led_pin3, GPIO_DIRECTION_OUTPUT);
-        gpio_setDirection(pin4, GPIO_DIRECTION_INPUT);
+        gpio_getDirection(led_pin1, &value);
+
+        //gpio_setDirection(pin2, GPIO_DIRECTION_INPUT);
+        //gpio_setDirection(led_pin3, GPIO_DIRECTION_OUTPUT);
+        //gpio_setDirection(pin4, GPIO_DIRECTION_INPUT);
 
 // End of Main
         gpio_deInit();

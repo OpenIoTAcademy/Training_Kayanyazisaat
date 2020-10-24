@@ -25,6 +25,6 @@ int kySocket_connect(tkySocketInfo *connection);
 int kySocket_disconnect(tkySocketInfo *connection);
 int kySocket_destroy(tkySocketInfo *connection);
 int kySocket_send(const tkySocketInfo *connection, const char *buf, const int len);
-int kySocket_receive(const tkySocketInfo *connection, char *buf, const int len);
+int kySocket_receive(const tkySocketInfo *connection, char *buf, const int length_max);
 
 #endif // KY_SOCKET_IF_H

@@ -31,9 +31,8 @@ def start_emulator(emulator, params):
     i.start()
     return i
 
-
-if __name__ == "__main__":  # C deki main()
-    signal.signal(signal.SIGINT, signal_handler)  # CTRL+C tus kombinasyonunu yakalar
+if __name__ == "__main__":
+    signal.signal(signal.SIGINT, signal_handler)
     print("This is main")
 
     # Create new threads list to keep track of emulators

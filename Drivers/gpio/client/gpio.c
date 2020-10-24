@@ -27,53 +27,35 @@ void gpio_deInit(void)
     kySocket_disconnect(&m_gpio_connection);
     kySocket_destroy(&m_gpio_connection);
 }
-/*
-void gpio_setDirection(const tGpioDef gpio, uint_fast8_t value )
-{
-    char sendbuf[20] = {0};
-    char tmpbuf[20];
-    sendbuf[4] = 'G';
-    sendbuf[5] = 'P';
-    sendbuf[6] = 'I';
-    sendbuf[7] = 'O';
-    sendbuf[8] = ('A' + gpio.port);
-    if (gpio.pin > 9)
-    {
-        sendbuf[9] = '1';
-    }
-    else
-    {
-        sendbuf[9] = '0';
-    }
 
-    sendbuf[10] = '0' + (gpio.pin % 10);
-    sendbuf[11] = 'D';
-    sendbuf[12] = value ? '1': '0';
-    sendbuf[0] = 9;
-    kySocket_send(&m_gpio_connection, sendbuf, 13);
-    //kySocket_receive(&m_gpio_connection, tmpbuf, 20);
-
-    char *txptr = &sendbuf[4];
-    uint32_t length = 0;
-    txptr[length++] = 'G';
-    txptr[length++] = 'P';
-    txptr[length++] = 'I';
-    txptr[length++] = 'O';
-
-}
-*/
-void gpio_setDirection(const tGpioDef gpio, uint_fast8_t value )
+void gpio_setDirection(const tGpioDef gpio, uint_fast8_t newVal)
 {
     char sendbuf[20] = {0};
 
     char port_char = 'A' + gpio.port;
-    char value_char = value ? '1': '0';
+    char value_char = newVal ? '1': '0';
     uint32_t *intptr = (uint32_t *)sendbuf;
     uint32_t length;
     length = snprintf(&sendbuf[4], 16, "GPIO%c%02dD%c", port_char, gpio.pin, value_char);
     *intptr = length;
     //memcpy(&sendbuf[4], tmpbuf, length);
     kySocket_send(&m_gpio_connection, sendbuf, length + sizeof(length));
+}
+
+void gpio_getDirection(const tGpioDef gpio, uint_fast8_t *const outVal)
+{
+    char sendbuf[20] = {0};
+    char recvbuf[20] = {0};
+
+    char port_char = 'A' + gpio.port;
+    uint32_t *intptr = (uint32_t *)sendbuf;
+    uint32_t length;
+    length = snprintf(&sendbuf[4], 16, "GPIO%c%02dRD", port_char, gpio.pin);
+    *intptr = length;
+    kySocket_send(&m_gpio_connection, sendbuf, length + sizeof(length));
+    kySocket_receive(&m_gpio_connection, recvbuf, sizeof(recvbuf));
+    printf("%s\n", recvbuf);
+    *outVal = 1;
 }
 
 /*
