@@ -1,5 +1,6 @@
 #include <stdio.h>
 #include <string.h>
+#include <stdint.h>
 #ifdef WINNT
 #include <winsock2.h>
 #include <ws2tcpip.h>
@@ -9,6 +10,8 @@
 #endif
 
 #include "ky_socket_if.h"
+
+#define KYSOCKET_MAX_BUFFER_LENGTH     (100)
 
 int kySocket_init(void)
 {
@@ -98,15 +101,22 @@ int kySocket_destroy(tkySocketInfo *connection)
 
 int kySocket_send(const tkySocketInfo *connection, const char *buf, const int len)
 {
-    int retval = send(connection->sc, buf, len, 0);
-    if (len == retval)
+    int retval = -1;
+    if (len < KYSOCKET_MAX_BUFFER_LENGTH)
     {
-        retval = 0;
-    }
-    else if (SOCKET_ERROR == retval)
-    {
+        if (2 == send(connection->sc, (char*)&len, 2, 0))
+        {
+            retval = send(connection->sc, buf, len, 0);
+            if (len == retval)
+            {
+                retval = 0;
+            }
+        }
 #ifdef WINNT
-        printf("kySocket_send failed. WSA Error= %d\n", WSAGetLastError());
+        if (SOCKET_ERROR == retval)
+        {
+            printf("kySocket_send failed. WSA Error= %d\n", WSAGetLastError());
+        }
 #endif
     }
     return (retval);
@@ -114,19 +124,21 @@ int kySocket_send(const tkySocketInfo *connection, const char *buf, const int le
 
 int kySocket_receive(const tkySocketInfo *connection, char *buf, const int length_max)
 {
-    int rx_len;
-    int retval  = recv(connection->sc, (char*)&rx_len, 4, 0);
-    if ( retval == 4 && rx_len < length_max )
+    uint16_t rx_len = 0;
+    /* Read first 2 bytes from socket. It is size of */
+    int retval  = recv(connection->sc, (char*)&rx_len, 2, 0);
+    if ( SOCKET_ERROR != retval)
     {
+        if (2 == retval && rx_len < length_max )
+        {
         retval = recv(connection->sc, buf, rx_len, 0);
+        }
     }
+#ifdef WINNT
     else
     {
-        retval = -1;
-#ifdef WINNT
-        printf("kySocket_receive failed. WSA Error= %d\n", WSAGetLastError());
-#endif
+    printf("kySocket_receive failed. WSA Error= %d\n", WSAGetLastError());
     }
-
+#endif
     return (retval);
 }

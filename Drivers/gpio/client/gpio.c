@@ -32,30 +32,35 @@ void gpio_setDirection(const tGpioDef gpio, uint_fast8_t newVal)
 {
     char sendbuf[20] = {0};
 
-    char port_char = 'A' + gpio.port;
-    char value_char = newVal ? '1': '0';
-    uint32_t *intptr = (uint32_t *)sendbuf;
-    uint32_t length;
-    length = snprintf(&sendbuf[4], 16, "GPIO%c%02dD%c", port_char, gpio.pin, value_char);
-    *intptr = length;
-    //memcpy(&sendbuf[4], tmpbuf, length);
-    kySocket_send(&m_gpio_connection, sendbuf, length + sizeof(length));
+    const char port_char = 'A' + gpio.port;
+    const char newVal_char = newVal ? '1': '0';
+    const uint32_t length = snprintf(sendbuf, sizeof(sendbuf), "GPIO%c%02dD%c", port_char, gpio.pin, newVal_char);
+    kySocket_send(&m_gpio_connection, sendbuf, length);
 }
 
 void gpio_getDirection(const tGpioDef gpio, uint_fast8_t *const outVal)
 {
     char sendbuf[20] = {0};
     char recvbuf[20] = {0};
-
     char port_char = 'A' + gpio.port;
-    uint32_t *intptr = (uint32_t *)sendbuf;
-    uint32_t length;
-    length = snprintf(&sendbuf[4], 16, "GPIO%c%02dRD", port_char, gpio.pin);
-    *intptr = length;
-    kySocket_send(&m_gpio_connection, sendbuf, length + sizeof(length));
+    char val_char;
+
+    const uint32_t length = snprintf(sendbuf, sizeof(sendbuf), "GPIO%c%02dRD", port_char, gpio.pin);
+
+    kySocket_send(&m_gpio_connection, sendbuf, length);
     kySocket_receive(&m_gpio_connection, recvbuf, sizeof(recvbuf));
-    printf("%s\n", recvbuf);
-    *outVal = 1;
+    snprintf(sendbuf, sizeof(sendbuf), "GPIO%c%02dD%%c", port_char, gpio.pin);
+    if (1 == sscanf(recvbuf, sendbuf, &val_char))
+    {
+        if ('0' == val_char)
+        {
+            *outVal = 0;
+        }
+        else
+        {
+            *outVal = 1;
+        }
+    }
 }
 
 /*

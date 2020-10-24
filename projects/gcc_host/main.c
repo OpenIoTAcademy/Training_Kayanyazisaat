@@ -34,6 +34,8 @@ int main(void)
 //        gpio_getDirection(led_pin1);
         gpio_setDirection(led_pin1, GPIO_DIRECTION_OUTPUT);
         gpio_getDirection(led_pin1, &value);
+        gpio_setDirection(led_pin1, GPIO_DIRECTION_INPUT);
+        gpio_getDirection(led_pin1, &value);
 
         //gpio_setDirection(pin2, GPIO_DIRECTION_INPUT);
         //gpio_setDirection(led_pin3, GPIO_DIRECTION_OUTPUT);

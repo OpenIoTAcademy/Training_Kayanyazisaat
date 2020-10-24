@@ -75,6 +75,5 @@ class GpioEmulator(EmulatorBase):
         value = self._ports[self._port_lkup[port]][pin][self._commands[param]]
         print("Read Command. Field = {2} {0} {1} {3}".format(port, pin, param, value))
         new_string = "GPIO{}{:02d}{}{}".format(port, pin, param, value)
-        to_send = len(new_string).to_bytes(4, byteorder='little') + new_string.encode("utf8")
-        self.cl_ac.sendall(to_send)
+        self.send_data(new_string, len(new_string))
         # enddef _read_pin_field_values

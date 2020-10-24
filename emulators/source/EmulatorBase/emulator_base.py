@@ -31,6 +31,14 @@ class EmulatorBase(threading.Thread):
         """Processes received data. Should be overridden by child class."""
         # enddef process_data
 
+    def send_data(self, data, data_len):
+        """Sends data to the client socket."""
+        to_send = bytes()
+        if isinstance(data, str):
+            to_send = data_len.to_bytes(2, byteorder='little') + data.encode("utf8")
+        self._cl_ac.sendall(to_send)
+        #enddef send_data
+
     def run(self):
         """Thread class overriden run function. Runs server until main script is stopped."""
         print("Starting server in " + self.name)
@@ -40,6 +48,21 @@ class EmulatorBase(threading.Thread):
         self._serve_forever()
         print("Stopping server in " + self.name)
     # enddef run
+
+    def fileno(self):
+        """Return socket file number.Interface required by selector."""
+        return self._server_socket.fileno()
+    # enddef fileno
+
+    def close(self):
+        """Closes server and ends thread."""
+        self._server_active = False
+        if hasattr(self, '_cl_ac'):
+            if isinstance(self._cl_ac, socket.socket):
+                self._cl_ac.shutdown(socket.SHUT_RDWR)
+                self._cl_ac.close()
+        self.__is_shut_down.wait()
+    # enddef close
 
     def _serve_forever(self, poll_interval=0.5):
         """Serves forever."""
@@ -59,24 +82,21 @@ class EmulatorBase(threading.Thread):
 
     def _handle_request(self):
         """Handles accepted socket connection."""
-        self.cl_ac, cl_addr = self._server_socket.accept() # pylint: disable=unused-variable,attribute-defined-outside-init
-        while hasattr(self, 'cl_ac'):
+        self._cl_ac, cl_addr = self._server_socket.accept() # pylint: disable=unused-variable,attribute-defined-outside-init
+        while hasattr(self, '_cl_ac'):
             try:
-                data = self.cl_ac.recv(4)
-                if len(data) == 4:
-                    data_len = data[0:4]
-                    data_len = int.from_bytes(data_len, byteorder='little')
-                    data = self.cl_ac.recv(data_len)
-                    # active_thread = threading.current_thread()
-                    # active_thread.process_data(data.decode())
+                data = self._cl_ac.recv(2)
+                if len(data) == 2:
+                    data_len = int.from_bytes(data, byteorder='little')
+                    data = self._cl_ac.recv(data_len)
                     try :
                         self.process_data(data)
                     except Exception as exp: # pylint: disable=broad-except
                         self._print_traceback(exp)
                 elif len(data) == 0:
-                    del self.cl_ac
+                    del self._cl_ac
             except Exception as exp: # pylint: disable=broad-except
-                del self.cl_ac
+                del self._cl_ac
                 self._print_traceback(exp)
     # enddef _handle_request
 
@@ -98,18 +118,3 @@ class EmulatorBase(threading.Thread):
                 'trace': trace
             }))
     # enddef _print_traceback
-
-    def fileno(self):
-        """Return socket file number.Interface required by selector."""
-        return self._server_socket.fileno()
-    # enddef fileno
-
-    def close(self):
-        """Closes server and ends thread."""
-        self._server_active = False
-        if hasattr(self, 'cl_ac'):
-            if isinstance(self.cl_ac, socket.socket):
-                self.cl_ac.shutdown(socket.SHUT_RDWR)
-                self.cl_ac.close()
-        self.__is_shut_down.wait()
-    # enddef close
