@@ -6,7 +6,11 @@
 #include <ws2tcpip.h>
 #include <errno.h>
 #else
+#include <sys/types.h>
 #include <sys/socket.h>
+#include <unistd.h>
+#include <netdb.h>
+#define SD_SEND     SHUT_WR
 #endif
 
 #include "ky_socket_if.h"
@@ -89,13 +93,17 @@ int kySocket_disconnect(tkySocketInfo *connection)
 
 int kySocket_destroy(tkySocketInfo *connection)
 {
-    const int retval = closesocket(connection->sc);
+    const int retval =
 #ifdef WINNT
+    closesocket(connection->sc);
     if (SOCKET_ERROR == retval)
     {
         printf("kySocket_destroy failed. WSA Error= %d\n", WSAGetLastError());
     }
+#else
+    close(connection->sc);
 #endif
+
     return (retval);
 }
 
@@ -127,7 +135,7 @@ int kySocket_receive(const tkySocketInfo *connection, char *buf, const int lengt
     uint16_t rx_len = 0;
     /* Read first 2 bytes from socket. It is size of */
     int retval  = recv(connection->sc, (char*)&rx_len, 2, 0);
-    if ( SOCKET_ERROR != retval)
+    if (-1 != retval)
     {
         if (2 == retval && rx_len < length_max )
         {

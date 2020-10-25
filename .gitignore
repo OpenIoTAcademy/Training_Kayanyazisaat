@@ -56,3 +56,7 @@ out/**
 Debug/
 Release/
 **/__pycache__/**
+.settings/
+.cproject
+.project
+
